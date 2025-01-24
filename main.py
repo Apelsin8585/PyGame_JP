@@ -3,10 +3,11 @@ import os
 import sys
 
 pygame.init()
-size = WIDTH, HEIGHT = 1920, 1000
+size = WIDTH, HEIGHT = 1900, 1000
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
-FPS = 50
+FPS = 60
+
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
@@ -28,6 +29,7 @@ def load_image(name, colorkey=None):
 def terminate():
     pygame.quit()
     sys.exit()
+
 
 def start_screen():
     intro_text = ["ЗАСТАВКА", "",
@@ -58,6 +60,7 @@ def start_screen():
         pygame.display.flip()
         clock.tick(FPS)
 
+
 def load_level(filename):
     filename = "data/" + filename
     # читаем уровень, убирая символы перевода строки
@@ -69,6 +72,7 @@ def load_level(filename):
 
     # дополняем каждую строку пустыми клетками ('.')
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
+
 
 def generate_level(level):
     new_player, x, y = None, None, None
@@ -83,6 +87,7 @@ def generate_level(level):
                 new_player = Player(x, y)
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
+
 
 tile_images = {
     'wall': load_image('box.png'),
@@ -115,7 +120,6 @@ class Player(pygame.sprite.Sprite):
             tile_width * self.pos[0] + 15, tile_height * self.pos[1] + 5)
 
 
-
 def move(hero, movement):
     x, y = hero.pos
     if movement == 'up':
@@ -130,6 +134,7 @@ def move(hero, movement):
     if movement == 'left':
         if x > 0 and map_level[y][x - 1] == '.':
             hero.move(x - 1, y)
+
 
 '''class Camera:
     # зададим начальный сдвиг камеры
@@ -173,7 +178,7 @@ while running:
             elif event.key == pygame.K_RIGHT:
                 move(player, 'right')
 
-    screen.fill((0,0,0))
+    screen.fill((0, 0, 0))
     tiles_group.draw(screen)
     player_group.draw(screen)
     clock.tick(FPS)
