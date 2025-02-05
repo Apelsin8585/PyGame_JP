@@ -1,5 +1,3 @@
-
-
 import sys
 import pygame
 import random
@@ -10,7 +8,7 @@ pygame.init()
 # Полноэкранный режим
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 WIDTH, HEIGHT = screen.get_size()
-pygame.display.set_caption("Игра с фиксированной стрельбой")
+pygame.display.set_caption("Игра с респавном врагов")
 
 # Цвета
 WHITE = (255, 255, 255)
@@ -36,10 +34,19 @@ bullets = pygame.sprite.Group()
 # Счетчик убийств
 kill_count = 0
 
+# Счетчик попаданий по игроку
+player_hits = 0
+
+# Шрифт для отображения счета
+font = pygame.font.Font(None, 36)  # Используем стандартный шрифт
+
+# Количество убийств для перехода на следующий уровень
+required_kills = 10  # Начальное значение
+
 class Player(pygame.sprite.Sprite):
     """Класс для игрока."""
-    def init(self):
-        super().init(all_sprites)
+    def __init__(self):
+        super().__init__(all_sprites)
         self.image = pygame.Surface((40, 60))
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
@@ -105,8 +112,8 @@ class Player(pygame.sprite.Sprite):
 
 class Wall(pygame.sprite.Sprite):
     """Класс для стен."""
-    def init(self, x, y, width, height):
-        super().init(all_sprites, walls)
+    def __init__(self, x, y, width, height):
+        super().__init__(all_sprites, walls)
         self.image = pygame.Surface((width, height))
         self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
@@ -115,8 +122,8 @@ class Wall(pygame.sprite.Sprite):
 
 class Enemy(pygame.sprite.Sprite):
     """Класс для врагов."""
-    def init(self, x, y):
-        super().init(all_sprites, enemies)
+    def __init__(self, x, y):
+        super().__init__(all_sprites, enemies)
         self.image = pygame.Surface((40, 40))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
@@ -144,7 +151,8 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
             self.vel_x *= -1
-# Стрельба в сторону игрока
+
+        # Стрельба в сторону игрока
         if not self.hiding and random.randint(1, 100) == 1:
             self.shoot()
 
@@ -156,8 +164,8 @@ class Enemy(pygame.sprite.Sprite):
 
 class Bullet(pygame.sprite.Sprite):
     """Класс для пуль игрока."""
-    def init(self, x, y):
-        super().init(all_sprites)
+    def __init__(self, x, y):
+        super().__init__(all_sprites)
         self.image = pygame.Surface((10, 20))
         self.image.fill(BLUE)
         self.rect = self.image.get_rect()
@@ -175,8 +183,8 @@ class Bullet(pygame.sprite.Sprite):
 
 class EnemyBullet(pygame.sprite.Sprite):
     """Класс для пуль врагов."""
-    def init(self, x, y):
-        super().init(all_sprites)
+    def __init__(self, x, y):
+        super().__init__(all_sprites)
         self.image = pygame.Surface((10, 20))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
@@ -192,10 +200,17 @@ class EnemyBullet(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, walls):
             self.kill()
 
+def generate_enemy():
+    """Создает нового врага в случайном месте."""
+    x = random.randint(0, WIDTH - 40)
+    y = random.randint(0, HEIGHT // 2)
+    enemy = Enemy(x, y)
+    all_sprites.add(enemy)
+    enemies.add(enemy)
+
 def load_level(level):
     """Загружает уровень."""
-    global kill_count
-    kill_count = 0  # Сброс счетчика убийств
+    global kill_count, required_kills
 
     # Очистка предыдущих спрайтов
     all_sprites.empty()
@@ -206,17 +221,32 @@ def load_level(level):
     # Создание игрока
     player = Player()
 
-    # Создание стен
+    # Создание стен и врагов в зависимости от уровня
     if level == 1:
         Wall(200, 400, 200, 20)
         Wall(400, 300, 200, 20)
         for _ in range(3):
-            enemy = Enemy(random.randint(0, WIDTH - 40), random.randint(0, HEIGHT // 2))
+            generate_enemy()
     elif level == 2:
         Wall(100, 500, 200, 20)
         Wall(500, 200, 200, 20)
         for _ in range(7):
-            enemy = Enemy(random.randint(0, WIDTH - 40), random.randint(0, HEIGHT // 2))
+            generate_enemy()
+    elif level == 3:
+        Wall(300, 400, 200, 20)
+        Wall(600, 300, 200, 20)
+        for _ in range(10):
+            generate_enemy()
+    elif level == 4:
+        Wall(150, 500, 200, 20)
+        Wall(450, 200, 200, 20)
+        for _ in range(13):
+            generate_enemy()
+    elif level == 5:
+        Wall(250, 400, 200, 20)
+        Wall(550, 300, 200, 20)
+        for _ in range(16):
+            generate_enemy()
 
     return player
 
@@ -248,11 +278,16 @@ while running:
     for hit in hits:
         kill_count += 1
         print(f"Убийств: {kill_count}")
-        if current_level == 1 and kill_count >= 7:  # Переход на второй уровень
-            current_level = 2
-            player = load_level(current_level)
-        else:
-            enemy = Enemy(random.randint(0, WIDTH - 40), random.randint(0, HEIGHT // 2))
+        generate_enemy()  # Респавн нового врага
+        if kill_count >= required_kills:  # Переход на следующий уровень
+            current_level += 1
+            if current_level > 5:  # Если уровни закончились
+                print("Победа! Все уровни пройдены!")
+                running = False
+            else:
+                required_kills += 15  # Увеличиваем количество убийств для следующего уровня
+                kill_count = 0  # Сбрасываем счетчик убийств
+                player = load_level(current_level)
 
     # Проверка коллизий игрока с врагами
     if pygame.sprite.spritecollide(player, enemies, False):
@@ -261,11 +296,24 @@ while running:
 
     # Проверка коллизий игрока с пулями врагов
     if pygame.sprite.spritecollide(player, bullets, True):
-        print("Игрок ранен!")
+        player_hits += 1
+        print(f"Игрок ранен! Попаданий: {player_hits}")
+        if player_hits >= 20:  # Игрок умирает после 20 попаданий
+            print("Игрок убит!")
+            running = False
 
     # Отрисовка
     screen.fill(BLACK)
     all_sprites.draw(screen)
+
+    # Отображение счетчика убийств и уровня
+    kill_text = font.render(f"Убийств: {kill_count}/{required_kills}", True, WHITE)
+    level_text = font.render(f"Уровень: {current_level}", True, WHITE)
+    hits_text = font.render(f"Попаданий: {player_hits}/20", True, WHITE)
+    screen.blit(kill_text, (WIDTH - 200, 10))  # Счетчик убийств в верхнем правом углу
+    screen.blit(level_text, (10, 10))  # Уровень в верхнем левом углу
+    screen.blit(hits_text, (WIDTH // 2 - 100, 10))  # Счетчик попаданий вверху по центру
+
     pygame.display.flip()
     clock.tick(FPS)
 

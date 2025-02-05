@@ -3,8 +3,8 @@ import os
 import sys
 
 pygame.init()
-size = WIDTH, HEIGHT = 1900, 1000
-screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+WIDTH, HEIGHT = screen.get_size()
 clock = pygame.time.Clock()
 FPS = 60
 
@@ -37,7 +37,7 @@ def start_screen():
                   "Если в правилах несколько строк,",
                   "приходится выводить их построчно"]
 
-    fon = pygame.transform.scale(load_image('fon_YL.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('main_fon.gif'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
