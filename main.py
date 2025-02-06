@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 from buttons import ImageButton
 
 # Инициализация Pygame
@@ -22,13 +23,38 @@ volume = 0.5
 pygame.mixer.init()
 pygame.mixer.music.set_volume(volume)
 
+
+def load_image(name, color_key=None):
+    fullname = os.path.join('data', name)
+    try:
+        image = pygame.image.load(fullname).convert()
+    except pygame.error as message:
+        print('Cannot load image:', name)
+        raise SystemExit(message)
+
+    if color_key is not None:
+        if color_key == -1:
+            color_key = image.get_at((0, 0))
+        image.set_colorkey(color_key)
+    else:
+        image = image.convert_alpha()
+    return image
+
+
+img_play_b = load_image('play_b.png')
+img_h_play_b = load_image('hover_play_b.png')
+img_exit_b = load_image('exit_b.png')
+img_h_exit_b = load_image('hover_exit_b.png')
+img_settings_b = load_image('settings_b.png')
+img_h_settings_b = load_image('hover_settings_b.png')
+
 # Создание кнопок
-play_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2 - 100, 200, 50, "", "play_b.png", "hover_play_b.png",
-                          "clic.mp3")
-exit_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2, 200, 50, "", "exite_b.png", "hover_exite_b.png",
-                          "clic.mp3")
-settings_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2 + 100, 200, 50, "", "settings.png",
-                              "hover_settings_b.png", "clic.mp3")
+play_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2 - 100, 200, 50, "", img_play_b,
+                          img_h_play_b)
+exit_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2, 200, 50, "", img_exit_b,
+                          img_h_exit_b)
+settings_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2 + 100, 200, 50, "", img_settings_b,
+                             img_h_settings_b)
 
 # Фон главного меню
 menu_background = pygame.Surface((WIDTH, HEIGHT))
@@ -50,7 +76,7 @@ def main_menu():
                 exec(open("basic_game.py").read())
 
             if event.type == pygame.USEREVENT and event.button == settings_button:
-                settings_menu()
+                pass
 
             play_button.handle_event(event)
             exit_button.handle_event(event)
@@ -62,55 +88,4 @@ def main_menu():
         exit_button.draw(screen)
         settings_button.check_hover(pygame.mouse.get_pos())
         settings_button.draw(screen)
-        pygame.display.flip()
-
-
-def settings_menu():
-    global volume
-    increase_button = ImageButton(WIDTH // 2 + 50, HEIGHT // 2 - 50, 50, 50, "", "plus_b.png", "hover_plus_b.png",
-                                  "clic.mp3")
-    decrease_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2 - 50, 50, 50, "", "minus_b.png", "hover_minus_b.png",
-                                  "clic.mp3")
-    back_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2 + 100, 200, 50, "", "back_b.png", "hover_back_b.png",
-                              "clic.mp3")
-
-    run = True
-    while run:
-        screen.fill(BLACK)
-
-        settings_text = font.render("Настройки", True, WHITE)
-        screen.blit(settings_text, (WIDTH // 2 - 80, HEIGHT // 4))
-
-        volume_text = font.render(f"Громкость: {int(volume * 100)}%", True, WHITE)
-        screen.blit(volume_text, (WIDTH // 2 - 80, HEIGHT // 2 - 50))
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-            if event.type == pygame.USEREVENT and event.button == increase_button:
-                if volume < 1.0:
-                    volume += 0.1
-                    pygame.mixer.music.set_volume(volume)
-
-            if event.type == pygame.USEREVENT and event.button == decrease_button:
-                if volume > 0.0:
-                    volume -= 0.1
-                    pygame.mixer.music.set_volume(volume)
-
-            if event.type == pygame.USEREVENT and event.button == back_button:
-                run = False
-
-            increase_button.handle_event(event)
-            decrease_button.handle_event(event)
-            back_button.handle_event(event)
-
-        increase_button.check_hover(pygame.mouse.get_pos())
-        increase_button.draw(screen)
-        decrease_button.check_hover(pygame.mouse.get_pos())
-        decrease_button.draw(screen)
-        back_button.check_hover(pygame.mouse.get_pos())
-        back_button.draw(screen)
-
         pygame.display.flip()

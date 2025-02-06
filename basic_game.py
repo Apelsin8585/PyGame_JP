@@ -1,6 +1,7 @@
 import sys
 import pygame
 import random
+import os
 
 # Инициализация Pygame
 pygame.init()
@@ -43,12 +44,29 @@ font = pygame.font.Font(None, 36)  # Используем стандартный
 # Количество убийств для перехода на следующий уровень
 required_kills = 10  # Начальное значение
 
+def load_image(name, color_key=None):
+    fullname = os.path.join('data', name)
+    try:
+        image = pygame.image.load(fullname).convert()
+    except pygame.error as message:
+        print('Cannot load image:', name)
+        raise SystemExit(message)
+
+    if color_key is not None:
+        if color_key == -1:
+            color_key = image.get_at((0, 0))
+        image.set_colorkey(color_key)
+    else:
+        image = image.convert_alpha()
+    return image
+
 class Player(pygame.sprite.Sprite):
+    image = load_image('basik_p.png')
+
     """Класс для игрока."""
     def __init__(self):
         super().__init__(all_sprites)
-        self.image = pygame.Surface((40, 60))
-        self.image.fill(GREEN)
+        self.image = Player.image
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH // 2, HEIGHT // 2)
         self.vel_y = 0

@@ -32,7 +32,7 @@ class ImageButton:
 
         self.sound = None
         if sound_name:
-            sound_path = os.path.join('data', sound_name)
+            sound_path = os.path.join('', sound_name)
             if os.path.exists(sound_path):
                 self.sound = pygame.mixer.Sound(sound_path)
 
