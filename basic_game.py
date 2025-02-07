@@ -338,13 +338,12 @@ while running:
             running = False
 
     # Отрисовка
-    screen.fill(BLACK)
     all_sprites.draw(screen)
 
     # Отображение счетчика убийств и уровня
-    kill_text = font.render(f"Убийств: {kill_count}/{required_kills}", True, WHITE)
+    kill_text = font.render(f"Цели: {kill_count}/{required_kills}", True, WHITE)
     level_text = font.render(f"Уровень: {current_level}", True, WHITE)
-    hits_text = font.render(f"Попаданий: {player_hits}/20", True, WHITE)
+    hits_text = font.render(f"Урон: {player_hits}/20", True, WHITE)
     screen.blit(kill_text, (WIDTH - 200, 10))  # Счетчик убийств в верхнем правом углу
     screen.blit(level_text, (10, 10))  # Уровень в верхнем левом углу
     screen.blit(hits_text, (WIDTH // 2 - 100, 10))  # Счетчик попаданий вверху по центру
