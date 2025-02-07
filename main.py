@@ -1,7 +1,9 @@
 import pygame
 import sys
 import os
+import subprocess
 from buttons import ImageButton
+from settings import settings_menu
 
 # Инициализация Pygame
 pygame.init()
@@ -10,6 +12,8 @@ pygame.init()
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 WIDTH, HEIGHT = screen.get_size()
 pygame.display.set_caption("Главное меню")
+
+
 
 # Цвета
 WHITE = (255, 255, 255)
@@ -41,30 +45,23 @@ def load_image(name, color_key=None):
     return image
 
 
-img_play_b = load_image('play_b.png')
-img_h_play_b = load_image('hover_play_b.png')
-img_exit_b = load_image('exit_b.png')
-img_h_exit_b = load_image('hover_exit_b.png')
-img_settings_b = load_image('settings_b.png')
-img_h_settings_b = load_image('hover_settings_b.png')
+play_button = ImageButton(WIDTH // 3 + 100, HEIGHT // 2 - 120, 400, 100, "",
+                          "data/play_b.png", "data/hover_play_b.png")
+exit_button = ImageButton(WIDTH // 3 + 100, HEIGHT // 2, 400, 100, "",
+                          "data/exit_b.png", "data/hoverr_exit_b.png")
+settings_button = ImageButton(WIDTH // 2 - 300, HEIGHT // 2 - 100, 75, 200, "",
+                              "data/settings_b.png", "data/hover_settings_b.png")
 
-# Создание кнопок
-play_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2 - 100, 200, 50, "", img_play_b,
-                          img_h_play_b)
-exit_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2, 200, 50, "", img_exit_b,
-                          img_h_exit_b)
-settings_button = ImageButton(WIDTH // 2 - 100, HEIGHT // 2 + 100, 200, 50, "", img_settings_b,
-                             img_h_settings_b)
 
 # Фон главного меню
-menu_background = pygame.Surface((WIDTH, HEIGHT))
-menu_background.fill(BLACK)
+background = pygame.image.load("data/fon_YL_text.png")  # Загружаем фон
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))  # Масштабируем под размер окна
 
 
 def main_menu():
     running = True
     while running:
-        screen.fill(BLACK)
+        screen.blit(background, (0,0))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.USEREVENT and event.button == exit_button):
@@ -73,10 +70,12 @@ def main_menu():
                 sys.exit()
 
             if event.type == pygame.USEREVENT and event.button == play_button:
-                exec(open("basic_game.py").read())
+                pygame.quit()  # Закрываем главное меню
+                subprocess.run(["python", "basic_game.py"])  # Запускаем игру
+                sys.exit()  # Полностью закрываем меню
 
             if event.type == pygame.USEREVENT and event.button == settings_button:
-                pass
+                settings_menu()
 
             play_button.handle_event(event)
             exit_button.handle_event(event)
@@ -89,3 +88,6 @@ def main_menu():
         settings_button.check_hover(pygame.mouse.get_pos())
         settings_button.draw(screen)
         pygame.display.flip()
+
+if __name__ == "__main__":
+    main_menu()

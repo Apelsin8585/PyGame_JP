@@ -11,6 +11,8 @@ screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 WIDTH, HEIGHT = screen.get_size()
 pygame.display.set_caption("Игра с респавном врагов")
 
+background = pygame.image.load("data/Back_forest.png")  # Загружаем фон
+
 # Цвета
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -44,6 +46,7 @@ font = pygame.font.Font(None, 36)  # Используем стандартный
 # Количество убийств для перехода на следующий уровень
 required_kills = 10  # Начальное значение
 
+
 def load_image(name, color_key=None):
     fullname = os.path.join('data', name)
     try:
@@ -60,10 +63,12 @@ def load_image(name, color_key=None):
         image = image.convert_alpha()
     return image
 
+
 class Player(pygame.sprite.Sprite):
     image = load_image('basik_p.png')
 
     """Класс для игрока."""
+
     def __init__(self):
         super().__init__(all_sprites)
         self.image = Player.image
@@ -128,8 +133,10 @@ class Player(pygame.sprite.Sprite):
         all_sprites.add(bullet)
         bullets.add(bullet)
 
+
 class Wall(pygame.sprite.Sprite):
     """Класс для стен."""
+
     def __init__(self, x, y, width, height):
         super().__init__(all_sprites, walls)
         self.image = pygame.Surface((width, height))
@@ -138,8 +145,10 @@ class Wall(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+
 class Enemy(pygame.sprite.Sprite):
     """Класс для врагов."""
+
     def __init__(self, x, y):
         super().__init__(all_sprites, enemies)
         self.image = pygame.Surface((40, 40))
@@ -180,8 +189,10 @@ class Enemy(pygame.sprite.Sprite):
         all_sprites.add(bullet)
         bullets.add(bullet)
 
+
 class Bullet(pygame.sprite.Sprite):
     """Класс для пуль игрока."""
+
     def __init__(self, x, y):
         super().__init__(all_sprites)
         self.image = pygame.Surface((10, 20))
@@ -199,8 +210,10 @@ class Bullet(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, walls):
             self.kill()
 
+
 class EnemyBullet(pygame.sprite.Sprite):
     """Класс для пуль врагов."""
+
     def __init__(self, x, y):
         super().__init__(all_sprites)
         self.image = pygame.Surface((10, 20))
@@ -218,6 +231,7 @@ class EnemyBullet(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, walls):
             self.kill()
 
+
 def generate_enemy():
     """Создает нового врага в случайном месте."""
     x = random.randint(0, WIDTH - 40)
@@ -225,6 +239,7 @@ def generate_enemy():
     enemy = Enemy(x, y)
     all_sprites.add(enemy)
     enemies.add(enemy)
+
 
 def load_level(level):
     """Загружает уровень."""
@@ -268,6 +283,7 @@ def load_level(level):
 
     return player
 
+
 # Загрузка первого уровня
 current_level = 1
 player = load_level(current_level)
@@ -275,6 +291,7 @@ player = load_level(current_level)
 # Основной игровой цикл
 running = True
 while running:
+    screen.blit(background, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -295,7 +312,7 @@ while running:
     hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
     for hit in hits:
         kill_count += 1
-        print(f"Убийств: {kill_count}")
+        print(f"Цели: {kill_count}")
         generate_enemy()  # Респавн нового врага
         if kill_count >= required_kills:  # Переход на следующий уровень
             current_level += 1
@@ -315,7 +332,7 @@ while running:
     # Проверка коллизий игрока с пулями врагов
     if pygame.sprite.spritecollide(player, bullets, True):
         player_hits += 1
-        print(f"Игрок ранен! Попаданий: {player_hits}")
+        print(f"Игрок ранен! Урон: {player_hits}")
         if player_hits >= 20:  # Игрок умирает после 20 попаданий
             print("Игрок убит!")
             running = False

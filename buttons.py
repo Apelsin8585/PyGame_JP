@@ -1,43 +1,24 @@
 import pygame
-import os
-
-def load_image(name, color_key=None):
-    fullname = os.path.join('data', name)  # Указываем путь к файлу
-    try:
-        image = pygame.image.load(fullname).convert_alpha()  # Используем convert_alpha() для прозрачности
-    except pygame.error as message:
-        print(f'Cannot load image: {fullname}')
-        raise SystemExit(message)
-
-    if color_key is not None:
-        if color_key == -1:
-            color_key = image.get_at((0, 0))
-        image.set_colorkey(color_key)
-
-    return image
 
 class ImageButton:
-    def __init__(self, x, y, width, height, text, image_name, hover_image_name=None, sound_name=None):
+    def __init__(self, x, y, width, height, text, image_path, hover_image_path=None, sound_path=None):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.text = text
 
-        self.image = pygame.transform.scale(load_image(image_name), (width, height))
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (width, height))
         self.hover_image = self.image
-        if hover_image_name:
-            self.hover_image = pygame.transform.scale(load_image(hover_image_name), (width, height))
+        if hover_image_path:
+            self.hover_image = pygame.image.load(hover_image_path)
+            self.hover_image = pygame.transform.scale(self.hover_image, (self.width, self.height))
         self.rect = self.image.get_rect(topleft=(x, y))
-
         self.sound = None
-        if sound_name:
-            sound_path = os.path.join('', sound_name)
-            if os.path.exists(sound_path):
-                self.sound = pygame.mixer.Sound(sound_path)
-
+        if sound_path:
+            self.sound = pygame.mixer.Sound(sound_path)
         self.is_hovered = False
-
     def draw(self, screen):
         current_image = self.hover_image if self.is_hovered else self.image
         screen.blit(current_image, self.rect.topleft)
